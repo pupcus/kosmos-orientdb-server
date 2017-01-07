@@ -6,43 +6,77 @@
            com.orientechnologies.orient.server.OServer
            com.orientechnologies.orient.core.Orient))
 
-(defn shut-down-hook [component]
-  (fn []
-    (log/info "Shutdown hook called on OrientDB")
-    (component/stop component)))
+(def DEFAULT_CONFIG_FILE "orient-db-server-config.xml")
 
-(defrecord OrientServer []
+(defn current-directory []
+  (.getAbsolutePath (io/as-file ".")))
+
+(defn str->stream [s]
+  (java.io.ByteArrayInputStream. (.getBytes ^String s)))
+
+(defn is-resource? [r]
+  (try
+    (io/resource r)
+    (catch Exception e)))
+
+(defn is-file? [f]
+  (try
+    (let [file (io/as-file f)]
+      (and (.exists file)
+           (.isFile file)))
+    (catch Exception e)))
+
+(defn can-open? [t]
+  (cond
+    (is-resource? t) :resource
+    (is-file?     t) :file))
+
+(defn as-stream-dispatch-fn [t]
+  (or (can-open? t) (class t)))
+
+(defmulti as-stream #'as-stream-dispatch-fn)
+
+(defmethod as-stream :resource [r]
+  (io/input-stream (io/resource r)))
+
+(defmethod as-stream :file [f]
+  (io/input-stream (io/as-file f)))
+
+(defmethod as-stream java.io.InputStream [is]
+  is)
+
+(defmethod as-stream java.lang.String [s]
+  (str->stream s))
+
+(defrecord OrientDbServer []
 
   component/Lifecycle
   (start
-   [component]
-   (log/info "OrientDB Server Startup ...")
-   (let [configuration  (io/input-stream (io/resource "orient-db.config"))
+    [{:keys [config] :as component}]
+    (log/info "OrientDB Server Startup ...")
 
-         server         (doto (OServerMain/create)
-                          (.startup configuration)
-                          (.activate))
+    (System/setProperty "ORIENTDB_HOME" (current-directory))
 
-        #_#_ _              (doto (Orient/instance)
-                          (.removeSignalHandler))
+    (let [configuration (or (as-stream config)
+                            (as-stream DEFAULT_CONFIG_FILE))
 
-         component      (assoc component :server server :shutdown (atom nil))
+          server         (doto (OServerMain/create)
+                           (.startup (as-stream configuration))
+                           (.activate))
 
-         shutdown       (Thread. #(shut-down-hook component))]
+          _              (doto (Orient/instance)
+                           (.removeSignalHandler))
 
-     (log/info "Adding shutdown hook for OrientDB")
-     (reset! (:shutdown component) shutdown)
-     (.addShutdownHook (Runtime/getRuntime) shutdown)
+          component      (assoc component :server server)]
 
-     (log/info "OrientDB Server started successfully")
-     component))
+      (log/info "OrientDB Server started successfully")
+      component))
 
   (stop
-   [{:keys [server shutdown] :as component}]
-   (log/info "OrientDB Server Shutdown")
-   (if server
-     (let [_ (.shutdown server)]
-       (log/info "OrientDB Server stopped successfully"))
-     (log/info "NO OrientDB Server found in component ... unable to shutdown successfully"))
-   (.removeShutdownHook (Runtime/getRuntime) @shutdown)
-   (dissoc component :server :shutdown)))
+    [{:keys [server] :as component}]
+    (log/info "OrientDB Server Shutdown")
+    (if server
+      (let [_ (.shutdown server)]
+        (log/info "OrientDB Server stopped successfully")
+        (dissoc component :server))
+      (log/info "NO OrientDB Server found in component ... unable to shutdown successfully!"))))
