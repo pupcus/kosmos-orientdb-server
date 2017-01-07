@@ -13,13 +13,12 @@
                  [org.clojure/tools.logging "0.3.1"]
 
                  [com.orientechnologies/orientdb-core "2.2.14"]
-                 [com.orientechnologies/orientdb-client "2.2.14"]
                  [com.orientechnologies/orientdb-server "2.2.14"]
-                 [com.orientechnologies/orientdb-distributed "2.2.14"]
-                 [com.orientechnologies/orientdb-graphdb "2.2.14"]]
+                 [com.orientechnologies/orientdb-distributed "2.2.14"]]
 
   :profiles {:dev {:resource-paths ["dev-resources"]
                    :dependencies   [[org.clojure/clojure "1.8.0"]
+                                    [hiccup "1.0.5"]
                                     [org.clojure/java.jdbc "0.4.2"]
                                     [org.slf4j/slf4j-log4j12 "1.7.5"]]}}
 
