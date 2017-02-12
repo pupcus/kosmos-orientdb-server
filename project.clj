@@ -1,4 +1,4 @@
-(defproject kosmos/kosmos-orientdb-server "0.0.2"
+(defproject kosmos/kosmos-orientdb-server "0.0.3-SNAPSHOT"
 
   :description "orientdb server component"
 
