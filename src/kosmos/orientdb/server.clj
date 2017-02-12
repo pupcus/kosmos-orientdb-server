@@ -64,9 +64,6 @@
                            (.startup (as-stream configuration))
                            (.activate))
 
-          _              (doto (Orient/instance)
-                           (.removeSignalHandler))
-
           component      (assoc component :server server)]
 
       (log/info "OrientDB Server started successfully")
