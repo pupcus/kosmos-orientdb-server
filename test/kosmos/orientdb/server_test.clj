@@ -2,7 +2,8 @@
   (:require [clojure.test :refer :all]
             [clojure.java.jdbc :as jdbc]
             [hiccup.core :as hiccup]
-            [kosmos :refer [start! stop! map->system system]]))
+            [kosmos :refer [start! stop! map->system system]]
+            [kosmos.orientdb.server.studio :as studio]))
 
 
 
@@ -50,9 +51,10 @@
    })
 
 (defn setup-db-server [f]
-  (start! (map->system config))
-  (f)
-  (stop!))
+  (with-redefs [studio/ensure-studio-zip-file (fn [_] true)]
+    (start! (map->system config))
+    (f)
+    (stop!)))
 
 (use-fixtures :once setup-db-server)
 

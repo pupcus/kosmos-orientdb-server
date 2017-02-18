@@ -10,11 +10,12 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
   :dependencies [[kosmos "0.0.6"]
+                 [org.clojure/java.classpath "0.2.3"]
                  [org.clojure/tools.logging "0.3.1"]
 
-                 [com.orientechnologies/orientdb-core "2.2.16"]
-                 [com.orientechnologies/orientdb-server "2.2.16"]
-                 [com.orientechnologies/orientdb-distributed "2.2.16"]]
+                 [com.orientechnologies/orientdb-core "2.2.17"]
+                 [com.orientechnologies/orientdb-server "2.2.17"]
+                 [com.orientechnologies/orientdb-distributed "2.2.17"]]
 
   :profiles {:dev {:resource-paths ["dev-resources"]
                    :dependencies   [[org.clojure/clojure "1.8.0"]

@@ -1,7 +1,8 @@
 (ns kosmos.orientdb.server
   (:require [clojure.java.io :as io]
             [clojure.tools.logging :as log]
-            [com.stuartsierra.component :as component])
+            [com.stuartsierra.component :as component]
+            [kosmos.orientdb.server.studio :as studio])
   (:import com.orientechnologies.orient.server.OServerMain
            com.orientechnologies.orient.server.OServer
            com.orientechnologies.orient.core.Orient))
@@ -55,19 +56,21 @@
     [{:keys [config] :as component}]
     (log/info "OrientDB Server Startup ...")
 
-    (System/setProperty "ORIENTDB_HOME" (current-directory))
+    (let [pwd (current-directory)]
+      (System/setProperty "ORIENTDB_HOME" (current-directory))
+      (studio/ensure-studio-zip-file pwd)
 
-    (let [configuration (or (as-stream config)
-                            (as-stream DEFAULT_CONFIG_FILE))
+      (let [configuration (or (as-stream config)
+                              (as-stream DEFAULT_CONFIG_FILE))
 
-          server         (doto (OServerMain/create)
-                           (.startup (as-stream configuration))
-                           (.activate))
+            server         (doto (OServerMain/create)
+                             (.startup (as-stream configuration))
+                             (.activate))
 
-          component      (assoc component :server server)]
+            component      (assoc component :server server)]
 
-      (log/info "OrientDB Server started successfully")
-      component))
+        (log/info "OrientDB Server started successfully")
+        component)))
 
   (stop
     [{:keys [server] :as component}]
