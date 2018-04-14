@@ -2,9 +2,9 @@
 
   :description "orientdb server component"
 
-  :url "https://bitbucket.org/pupcus/kosmos-orientdb-server"
+  :url "https://github.com/pupcus/kosmos-orientdb-server"
 
-  :scm {:url "git@bitbucket.org:bitbucket/kosmos-orientdb-server"}
+  :scm {:url "git@github.com:pupcus/kosmos-orientdb-server.git"}
 
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
